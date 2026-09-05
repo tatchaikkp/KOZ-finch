@@ -1,591 +1,147 @@
-<!DOCTYPE html>
-<html lang="th">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>ระบบจัดการนกฟินเจ็ดสี</title>
-
-<style>
-
-*{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
-    font-family:'Segoe UI',sans-serif;
-}
-
-body{
-    background:#f4f7fb;
-    padding:20px;
-}
-
-.container{
-    max-width:1400px;
-    margin:auto;
-}
-
-.header{
-    text-align:center;
-    margin-bottom:20px;
-}
-
-.header h1{
-    color:#2c3e50;
-}
-
-.card{
-    background:#fff;
-    padding:20px;
-    margin-bottom:20px;
-    border-radius:15px;
-    box-shadow:0 3px 12px rgba(0,0,0,0.1);
-}
-
-.form-grid{
-    display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
-    gap:10px;
-}
-
-input,select{
-    padding:12px;
-    border:1px solid #ccc;
-    border-radius:8px;
-}
-
-button{
-    border:none;
-    padding:12px;
-    border-radius:8px;
-    cursor:pointer;
-    font-weight:bold;
-}
-
-.btn-in{
-    background:#27ae60;
-    color:white;
-}
-
-.btn-out{
-    background:#e74c3c;
-    color:white;
-}
-
-.btn-delete{
-    background:#6c757d;
-    color:white;
-}
-
-.dashboard{
-    display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
-    gap:15px;
-}
-
-.box{
-    padding:20px;
-    border-radius:15px;
-    color:white;
-    text-align:center;
-}
-
-.box h2{
-    margin-bottom:8px;
-}
-
-.blue{
-    background:#3498db;
-}
-
-.green{
-    background:#27ae60;
-}
-
-.red{
-    background:#e74c3c;
-}
-
-.purple{
-    background:#8e44ad;
-}
-
-table{
-    width:100%;
-    border-collapse:collapse;
-    font-size:14px;
-}
-
-th{
-    background:#34495e;
-    color:white;
-}
-
-th,td{
-    border:1px solid #ddd;
-    padding:10px;
-    text-align:center;
-}
-
-.status-available{
-    color:#27ae60;
-    font-weight:bold;
-}
-
-.status-sold{
-    color:#e74c3c;
-    font-weight:bold;
-}
-
-.profit{
-    color:#27ae60;
-    font-weight:bold;
-}
-
-.loss{
-    color:#e74c3c;
-    font-weight:bold;
-}
-
-@media(max-width:768px){
-
-table{
-    font-size:12px;
-}
-
-}
-
-</style>
-</head>
-<body>
-
-<div class="container">
-
-<div class="header">
-<h1>🐦 ระบบจัดการนกฟินเจ็ดสี</h1>
-</div>
-
-<div class="card">
-<div class="dashboard">
-
-<div class="box blue">
-<h2 id="totalBirds">0</h2>
-<p>จำนวนทั้งหมด</p>
-</div>
-
-<div class="box green">
-<h2 id="availableBirds">0</h2>
-<p>คงเหลือ</p>
-</div>
-
-<div class="box red">
-<h2 id="soldBirds">0</h2>
-<p>ขายแล้ว</p>
-</div>
-
-<div class="box purple">
-<h2 id="totalProfit">0</h2>
-<p>กำไรสะสม (บาท)</p>
-</div>
-
-</div>
-</div>
-
-<div class="card">
-
-<h2>🟢 บันทึกรับเข้า</h2>
-<br>
-
-<div class="form-grid">
-
-<input type="text" id="ringIn" placeholder="Ring Number">
-
-<input type="text" id="ownerIn" placeholder="ชื่อเจ้าของ">
-
-<select id="genderIn">
-<option value="">เลือกเพศ</option>
-<option value="ผู้">ผู้</option>
-<option value="เมีย">เมีย</option>
-</select>
-
-<input type="text" id="colorIn" placeholder="สี">
-
-<input type="number" id="buyPrice" placeholder="ราคาซื้อ">
-
-<input type="date" id="receiveDate">
-
-<button class="btn-in" onclick="addBird()">
-บันทึกรับเข้า
-</button>
-
-</div>
-
-</div>
-
-<div class="card">
-
-<h2>🔴 บันทึกขายออก</h2>
-<br>
-
-<div class="form-grid">
-
-<select id="sellRing"></select>
-
-<input type="date" id="sellDate">
-
-<input type="number"
-id="sellPrice"
-placeholder="ราคาขาย">
-
-<button class="btn-out"
-onclick="sellBird()">
-
-บันทึกขายออก
-
-</button>
-
-</div>
-
-</div>
-
-<div class="card">
-
-<input
-type="text"
-id="searchBox"
-placeholder="ค้นหา Ring Number"
-onkeyup="renderTable()"
-style="width:100%;">
-
-</div>
-
-<div class="card" style="overflow-x:auto;">
-
-<table>
-
-<thead>
-<tr>
-<th>Ring</th>
-<th>เจ้าของ</th>
-<th>เพศ</th>
-<th>สี</th>
-<th>ราคาซื้อ</th>
-<th>ราคาขาย</th>
-<th>กำไร/ขาดทุน</th>
-<th>วันที่รับเข้า</th>
-<th>สถานะ</th>
-<th>วันที่ขาย</th>
-<th>ลบ</th>
-</tr>
-</thead>
-
-<tbody id="birdTable"></tbody>
-
-</table>
-
-</div>
-
-</div>
-
 <script>
 
-let birds =
-JSON.parse(localStorage.getItem("birds")) || [];
-
-function saveData(){
-
-localStorage.setItem(
-"birds",
-JSON.stringify(birds)
-);
-
-}
-
-function addBird(){
-
-let ring =
-document.getElementById("ringIn").value.trim();
-
-let owner =
-document.getElementById("ownerIn").value.trim();
-
-let gender =
-document.getElementById("genderIn").value;
-
-let color =
-document.getElementById("colorIn").value.trim();
-
-let buyPrice =
-document.getElementById("buyPrice").value;
-
-let receiveDate =
-document.getElementById("receiveDate").value;
-
-if(
-!ring ||
-!owner ||
-!gender ||
-!color ||
-!buyPrice ||
-!receiveDate
-){
-
-alert("กรอกข้อมูลให้ครบ");
-
-return;
-
-}
-
-if(
-birds.some(
-bird => bird.ring === ring
-)
-){
-
-alert("Ring Number ซ้ำ");
-
-return;
-
-}
-
-birds.push({
-
-ring,
-owner,
-gender,
-color,
-
-buyPrice:Number(buyPrice),
-
-sellPrice:0,
-
-profit:0,
-
-receiveDate,
-
-status:"คงเหลือ",
-
-sellDate:""
-
-});
-
-saveData();
-
-document.getElementById("ringIn").value="";
-document.getElementById("ownerIn").value="";
-document.getElementById("genderIn").value="";
-document.getElementById("colorIn").value="";
-document.getElementById("buyPrice").value="";
-document.getElementById("receiveDate").value="";
-
-renderTable();
-
-}
-
-function sellBird(){
-
-let ring =
-document.getElementById("sellRing").value;
-
-let sellDate =
-document.getElementById("sellDate").value;
-
-let sellPrice =
-document.getElementById("sellPrice").value;
-
-if(
-!ring ||
-!sellDate ||
-!sellPrice
-){
-
-alert("กรุณากรอกข้อมูลให้ครบ");
-
-return;
-
-}
-
-let bird =
-birds.find(
-bird => bird.ring === ring
-);
-
-bird.sellPrice =
-Number(sellPrice);
-
-bird.sellDate =
-sellDate;
-
-bird.status =
-"ขายแล้ว";
-
-bird.profit =
-bird.sellPrice -
-bird.buyPrice;
-
-saveData();
-
-document.getElementById("sellPrice").value="";
-document.getElementById("sellDate").value="";
-
-renderTable();
-
-}
-
-function deleteBird(index){
-
-if(confirm("ต้องการลบรายการนี้ ?")){
-
-birds.splice(index,1);
-
-saveData();
-
-renderTable();
-
-}
-
-}
-
-function renderTable(){
-
-let keyword =
-document.getElementById("searchBox")
-.value
-.toLowerCase();
-
-let table =
-document.getElementById("birdTable");
-
-let sellRing =
-document.getElementById("sellRing");
-
-table.innerHTML="";
-
-sellRing.innerHTML=
-'<option value="">เลือก Ring Number</option>';
-
-let available=0;
-let sold=0;
-let totalProfit=0;
-
-birds.forEach((bird,index)=>{
-
-if(
-bird.status === "คงเหลือ"
-){
-
-available++;
-
-sellRing.innerHTML +=
-`<option value="${bird.ring}">
-${bird.ring}
-</option>`;
-
-}
-else{
-
-sold++;
-
-totalProfit += Number(bird.profit);
-
-}
-
-if(
-bird.ring.toLowerCase()
-.includes(keyword)
-){
-
-table.innerHTML +=
-`
-<tr>
-
-<td>${bird.ring}</td>
-
-<td>${bird.owner}</td>
-
-<td>${bird.gender}</td>
-
-<td>${bird.color}</td>
-
-<td>${bird.buyPrice.toLocaleString()}</td>
-
-<td>
-${bird.sellPrice ?
-bird.sellPrice.toLocaleString()
-: "-"}
-</td>
-
-<td class="${
-bird.profit >= 0
-? 'profit'
-: 'loss'
-}">
-${bird.sellPrice ?
-bird.profit.toLocaleString()
-: "-"}
-</td>
-
-<td>${bird.receiveDate}</td>
-
-<td class="${
-bird.status === "คงเหลือ"
-? "status-available"
-: "status-sold"
-}">
-${bird.status}
-</td>
-
-<td>
-${bird.sellDate || "-"}
-</td>
-
-<td>
-<button
-class="btn-delete"
-onclick="deleteBird(${index})">
-ลบ
-</button>
-</td>
-
-</tr>
-`;
-}
-
-});
-
-document.getElementById("totalBirds")
-.innerText =
-birds.length;
-
-document.getElementById("availableBirds")
-.innerText =
-available;
-
-document.getElementById("soldBirds")
-.innerText =
-sold;
-
-document.getElementById("totalProfit")
-.innerText =
-totalProfit.toLocaleString();
-
-}
-
-renderTable();
-
-</script>
-
-</body>
-</html>
-https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2script>
-const SUPABASE_URL =
-"https://udtazaswyprjqpzbwhus.supabase.co/rest/v1/";
-
-const SUPABASE_KEY =
-"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVkdGF6YXN3eXByanFwemJ3aHVzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg2MDkzMzEsImV4cCI6MjEwNDE4NTMzMX0.7vu1WutkN-uMSlTXtlFdQxuymE5GaP54utiUGT_hmtI";
+const SUPABASE_URL = "https://udtazaswyprjqpzbwhus.supabase.co/rest/v1/";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVkdGF6YXN3eXByanFwemJ3aHVzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg2MDkzMzEsImV4cCI6MjEwNDE4NTMzMX0.7vu1WutkN-uMSlTXtlFdQxuymE5GaP54utiUGT_hmtI";
 
 const supabase =
 window.supabase.createClient(
-SUPABASE_URL,
-SUPABASE_KEY
+    SUPABASE_URL,
+    SUPABASE_KEY
 );
+
+let birds = [];
+
+async function loadBirds(){
+
+    const { data, error } =
+    await supabase
+    .from("birds")
+    .select("*")
+    .order("id",{ascending:fals*});
+
+    if(error){
+        consol*.error(error);
+        alert(error*message);
+        return;
+    }
+
+ *  birds = data || [];
+
+    renderT*ble();
+}
+
+async function addBird()*
+
+    let ring =
+    document.getE*ementById("ringIn").value.trim();
+*    let owner =
+    document.getEl*mentById("ownerIn").value.trim();
+*    let gender =
+    document.getE*ementById("genderIn").value;
+
+    *et color =
+    document.getElement*yId("colorIn").value.trim();
+
+    *et buyPrice =
+    document.getElem*ntById("buyPrice").value;
+
+    let*receiveDate =
+    document.getElem*ntById("receiveDate").value;
+
+    *f(
+        !ring ||
+        !owner*||
+        !gender ||
+        !col*r ||
+        !buyPrice ||
+        *receiveDate
+    ){
+        alert("*รุณากรอกข้อมูลให้ครบ");
+        re*urn;
+    }
+
+    const { error } =
+*   await supabase
+    .from("birds*)
+    .insert([{
+        ring:ring,
+        owner:owner,
+        gender:gender,
+        color:color,
+        buy_price:Number(buyPrice),
+  *     sell_price:0,
+        profit:*,
+        receive_date:receiveDate*
+        status:"คงเหลือ"
+    }]);*
+    if(error){
+        alert(erro*.message);
+        return;
+    }
+
+*   document.getElementById("ringIn*).value="";
+    document.getElemen*ById("ownerIn").value="";
+    docu*ent.getElementById("genderIn").val*e="";
+    document.getElementById(*colorIn").value="";
+    document.g*tElementById("buyPrice").value="";*    document.getElementById("recei*eDate").value="";
+
+    await loadB*rds();
+}
+
+async function sellBird(*{
+
+    let ring =
+    document.get*lementById("sellRing").value;
+
+   *let sellDate =
+    document.getEle*entById("sellDate").value;
+
+    le* sellPrice =
+    Number(
+        d*cument.getElementById("sellPrice")*value
+    );
+
+    if(!ring || !sel*Date || !sellPrice){
+        alert*"กรุณากรอกข้อมูลให้ครบ");
+        *eturn;
+    }
+
+    let bird =
+    b*rds.find(
+        x => x.ring === *ing
+    );
+
+    if(!bird){
+       *alert("ไม่พบข้อมูล");
+        retu*n;
+    }
+
+    let profit =
+    sel*Price - Number(bird.buy_price);
+
+ *  const { error } =
+    await supa*ase
+    .from("birds")
+    .update*{
+        sell_price:sellPrice,
+  *     sell_date:sellDate,
+        p*ofit:profit,
+        status:"ขายแล*ว"
+    })
+    .eq("ring",ring);
+
+ *  if(error){
+        alert(error.m*ssage);
+        return;
+    }
+
+   *document.getElementById("sellPrice*).value="";
+    document.getElemen*ById("sellDate").value="";
+
+    aw*it loadBirds();
+}
+
+async function *eleteBird(id){
+
+    if(!confirm("ต*องการลบรายการนี้ ?"))
+        retu*

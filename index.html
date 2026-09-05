@@ -3,140 +3,76 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>ระบบจัดการนกฟินเจ็ดสี</title>
 
 <style>
 
-body{
-    font-family: Arial, sans-serif;
-    max-width:1200px;
-    margin:auto;
-    padding:20px;
-    background:#f4f6f8;
+*{
+    box-sizing:border-box;
+    margin:0;
+    padding:0;
+    font-family:'Segoe UI',sans-serif;
 }
 
-h1{
+body{
+    background:#eef2f7;
+    padding:20px;
+}
+
+.container{
+    max-width:1200px;
+    margin:auto;
+}
+
+.header{
     text-align:center;
-    color:#333;
+    margin-bottom:25px;
+}
+
+.header h1{
+    color:#2c3e50;
 }
 
 .card{
-    background:white;
+    background:#fff;
     padding:20px;
-    border-radius:10px;
-    box-shadow:0 2px 8px rgba(0,0,0,0.1);
+    border-radius:15px;
+    box-shadow:0 3px 10px rgba(0,0,0,0.1);
     margin-bottom:20px;
 }
 
-input{
-    padding:10px;
-    margin:5px;
+.form-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+    gap:10px;
+    margin-top:10px;
+}
+
+input,select{
+    padding:12px;
     border:1px solid #ccc;
-    border-radius:5px;
+    border-radius:8px;
 }
 
 button{
-    padding:10px 15px;
     border:none;
-    border-radius:5px;
+    padding:12px 18px;
+    border-radius:8px;
     cursor:pointer;
-}
-
-.save-btn{
-    background:#28a745;
-    color:white;
-}
-
-.sell-btn{
-    background:#dc3545;
-    color:white;
-}
-
-.delete-btn{
-    background:#6c757d;
-    color:white;
-}
-
-table{
-    width:100%;
-    border-collapse:collapse;
-}
-
-th, td{
-    border:1px solid #ddd;
-    padding:10px;
-    text-align:center;
-}
-
-th{
-    background:#007bff;
-    color:white;
-}
-
-.summary{
-    font-size:18px;
     font-weight:bold;
-    margin-bottom:15px;
 }
 
-</style>
-</head>
+.btn-in{
+    background:#27ae60;
+    color:white;
+}
 
-<body>
+.btn-out{
+    background:#e74c3c;
+    color:white;
+}
 
-<h1>ระบบจัดการนกฟินเจ็ดสี</h1>
-
-<div class="card">
-
-<h3>เพิ่มข้อมูลนก</h3>
-
-<input type="text" id="ring" placeholder="Ring Number">
-
-<input type="text" id="owner" placeholder="ชื่อเจ้าของ">
-
-<input type="date" id="receiveDate">
-
-<button class="save-btn" onclick="addBird()">
-บันทึก
-</button>
-
-</div>
-
-<div class="card">
-
-<h3>ค้นหา</h3>
-
-<input type="text" id="searchBox" placeholder="ค้นหาห่วงขา" onkeyup="renderTable()">
-
-</div>
-
-<div class="card">
-
-<div id="summary" class="summary"></div>
-
-<table>
-
-<thead>
-<tr>
-<th>Ring Number</th>
-<th>เจ้าของ</th>
-<th>วันที่รับเข้า</th>
-<th>สถานะ</th>
-<th>วันที่ขาย</th>
-<th>จัดการ</th>
-</tr>
-</thead>
-
-<tbody id="birdTable">
-</tbody>
-
-</table>
-
-</div>
-
-<script>
-
-let birds =
-JSON.parse(localStorage.getItem("birds")) || [];
-
-function saveData(){
+.btn-delete{
+    background:#6c757d;
+    color:white

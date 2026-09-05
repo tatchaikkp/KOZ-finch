@@ -577,3 +577,15 @@ renderTable();
 
 </body>
 </html>
+https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2script>
+const SUPABASE_URL =
+"https://udtazaswyprjqpzbwhus.supabase.co/rest/v1/";
+
+const SUPABASE_KEY =
+"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVkdGF6YXN3eXByanFwemJ3aHVzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg2MDkzMzEsImV4cCI6MjEwNDE4NTMzMX0.7vu1WutkN-uMSlTXtlFdQxuymE5GaP54utiUGT_hmtI";
+
+const supabase =
+window.supabase.createClient(
+SUPABASE_URL,
+SUPABASE_KEY
+);

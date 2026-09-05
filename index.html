@@ -255,4 +255,325 @@ type="text"
 id="searchBox"
 placeholder="ค้นหา Ring Number"
 onkeyup="renderTable()"
-style="width
+style="width:100%;">
+
+</div>
+
+<div class="card" style="overflow-x:auto;">
+
+<table>
+
+<thead>
+<tr>
+<th>Ring</th>
+<th>เจ้าของ</th>
+<th>เพศ</th>
+<th>สี</th>
+<th>ราคาซื้อ</th>
+<th>ราคาขาย</th>
+<th>กำไร/ขาดทุน</th>
+<th>วันที่รับเข้า</th>
+<th>สถานะ</th>
+<th>วันที่ขาย</th>
+<th>ลบ</th>
+</tr>
+</thead>
+
+<tbody id="birdTable"></tbody>
+
+</table>
+
+</div>
+
+</div>
+
+<script>
+
+let birds =
+JSON.parse(localStorage.getItem("birds")) || [];
+
+function saveData(){
+
+localStorage.setItem(
+"birds",
+JSON.stringify(birds)
+);
+
+}
+
+function addBird(){
+
+let ring =
+document.getElementById("ringIn").value.trim();
+
+let owner =
+document.getElementById("ownerIn").value.trim();
+
+let gender =
+document.getElementById("genderIn").value;
+
+let color =
+document.getElementById("colorIn").value.trim();
+
+let buyPrice =
+document.getElementById("buyPrice").value;
+
+let receiveDate =
+document.getElementById("receiveDate").value;
+
+if(
+!ring ||
+!owner ||
+!gender ||
+!color ||
+!buyPrice ||
+!receiveDate
+){
+
+alert("กรอกข้อมูลให้ครบ");
+
+return;
+
+}
+
+if(
+birds.some(
+bird => bird.ring === ring
+)
+){
+
+alert("Ring Number ซ้ำ");
+
+return;
+
+}
+
+birds.push({
+
+ring,
+owner,
+gender,
+color,
+
+buyPrice:Number(buyPrice),
+
+sellPrice:0,
+
+profit:0,
+
+receiveDate,
+
+status:"คงเหลือ",
+
+sellDate:""
+
+});
+
+saveData();
+
+document.getElementById("ringIn").value="";
+document.getElementById("ownerIn").value="";
+document.getElementById("genderIn").value="";
+document.getElementById("colorIn").value="";
+document.getElementById("buyPrice").value="";
+document.getElementById("receiveDate").value="";
+
+renderTable();
+
+}
+
+function sellBird(){
+
+let ring =
+document.getElementById("sellRing").value;
+
+let sellDate =
+document.getElementById("sellDate").value;
+
+let sellPrice =
+document.getElementById("sellPrice").value;
+
+if(
+!ring ||
+!sellDate ||
+!sellPrice
+){
+
+alert("กรุณากรอกข้อมูลให้ครบ");
+
+return;
+
+}
+
+let bird =
+birds.find(
+bird => bird.ring === ring
+);
+
+bird.sellPrice =
+Number(sellPrice);
+
+bird.sellDate =
+sellDate;
+
+bird.status =
+"ขายแล้ว";
+
+bird.profit =
+bird.sellPrice -
+bird.buyPrice;
+
+saveData();
+
+document.getElementById("sellPrice").value="";
+document.getElementById("sellDate").value="";
+
+renderTable();
+
+}
+
+function deleteBird(index){
+
+if(confirm("ต้องการลบรายการนี้ ?")){
+
+birds.splice(index,1);
+
+saveData();
+
+renderTable();
+
+}
+
+}
+
+function renderTable(){
+
+let keyword =
+document.getElementById("searchBox")
+.value
+.toLowerCase();
+
+let table =
+document.getElementById("birdTable");
+
+let sellRing =
+document.getElementById("sellRing");
+
+table.innerHTML="";
+
+sellRing.innerHTML=
+'<option value="">เลือก Ring Number</option>';
+
+let available=0;
+let sold=0;
+let totalProfit=0;
+
+birds.forEach((bird,index)=>{
+
+if(
+bird.status === "คงเหลือ"
+){
+
+available++;
+
+sellRing.innerHTML +=
+`<option value="${bird.ring}">
+${bird.ring}
+</option>`;
+
+}
+else{
+
+sold++;
+
+totalProfit += Number(bird.profit);
+
+}
+
+if(
+bird.ring.toLowerCase()
+.includes(keyword)
+){
+
+table.innerHTML +=
+`
+<tr>
+
+<td>${bird.ring}</td>
+
+<td>${bird.owner}</td>
+
+<td>${bird.gender}</td>
+
+<td>${bird.color}</td>
+
+<td>${bird.buyPrice.toLocaleString()}</td>
+
+<td>
+${bird.sellPrice ?
+bird.sellPrice.toLocaleString()
+: "-"}
+</td>
+
+<td class="${
+bird.profit >= 0
+? 'profit'
+: 'loss'
+}">
+${bird.sellPrice ?
+bird.profit.toLocaleString()
+: "-"}
+</td>
+
+<td>${bird.receiveDate}</td>
+
+<td class="${
+bird.status === "คงเหลือ"
+? "status-available"
+: "status-sold"
+}">
+${bird.status}
+</td>
+
+<td>
+${bird.sellDate || "-"}
+</td>
+
+<td>
+<button
+class="btn-delete"
+onclick="deleteBird(${index})">
+ลบ
+</button>
+</td>
+
+</tr>
+`;
+}
+
+});
+
+document.getElementById("totalBirds")
+.innerText =
+birds.length;
+
+document.getElementById("availableBirds")
+.innerText =
+available;
+
+document.getElementById("soldBirds")
+.innerText =
+sold;
+
+document.getElementById("totalProfit")
+.innerText =
+totalProfit.toLocaleString();
+
+}
+
+renderTable();
+
+</script>
+
+</body>
+</html>

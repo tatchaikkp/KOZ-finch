@@ -75,4 +75,368 @@ button{
 
 .btn-delete{
     background:#6c757d;
-    color:white
+    color:white;
+}
+
+.summary{
+    display:flex;
+    gap:15px;
+    flex-wrap:wrap;
+}
+
+.box{
+    flex:1;
+    min-width:180px;
+    color:white;
+    padding:15px;
+    border-radius:12px;
+    text-align:center;
+}
+
+.blue{
+    background:#3498db;
+}
+
+.green{
+    background:#27ae60;
+}
+
+.red{
+    background:#e74c3c;
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+}
+
+th{
+    background:#34495e;
+    color:white;
+}
+
+th,td{
+    padding:12px;
+    border:1px solid #ddd;
+    text-align:center;
+}
+
+.status-available{
+    color:green;
+    font-weight:bold;
+}
+
+.status-sold{
+    color:red;
+    font-weight:bold;
+}
+
+@media(max-width:768px){
+table{
+    font-size:13px;
+}
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<div class="header">
+<h1>🐦 ระบบจัดการนกฟินเจ็ดสี</h1>
+</div>
+
+<div class="card">
+
+<div class="summary">
+
+<div class="box blue">
+<h3 id="totalBirds">0</h3>
+<p>ทั้งหมด</p>
+</div>
+
+<div class="box green">
+<h3 id="availableBirds">0</h3>
+<p>คงเหลือ</p>
+</div>
+
+<div class="box red">
+<h3 id="soldBirds">0</h3>
+<p>ขายแล้ว</p>
+</div>
+
+</div>
+
+</div>
+
+<!-- รับเข้า -->
+
+<div class="card">
+
+<h2>🟢 บันทึกรับเข้า</h2>
+
+<div class="form-grid">
+
+<input type="text" id="ringIn" placeholder="Ring Number">
+
+<input type="text" id="ownerIn" placeholder="ชื่อเจ้าของ">
+
+<input type="date" id="receiveDate">
+
+<button class="btn-in" onclick="addBird()">
+บันทึกรับเข้า
+</button>
+
+</div>
+
+</div>
+
+<!-- ขายออก -->
+
+<div class="card">
+
+<h2>🔴 บันทึกขายออก</h2>
+
+<div class="form-grid">
+
+<select id="sellRing"></select>
+
+<input type="date" id="sellDate">
+
+<button class="btn-out" onclick="sellBird()">
+บันทึกขายออก
+</button>
+
+</div>
+
+</div>
+
+<!-- ค้นหา -->
+
+<div class="card">
+
+<input
+type="text"
+id="searchBox"
+placeholder="ค้นหา Ring Number"
+onkeyup="renderTable()">
+
+</div>
+
+<!-- ตาราง -->
+
+<div class="card">
+
+<table>
+
+<thead>
+
+<tr>
+<th>Ring</th>
+<th>เจ้าของ</th>
+<th>วันที่รับเข้า</th>
+<th>สถานะ</th>
+<th>วันที่ขาย</th>
+<th>ลบ</th>
+</tr>
+
+</thead>
+
+<tbody id="birdTable"></tbody>
+
+</table>
+
+</div>
+
+</div>
+
+<script>
+
+let birds =
+JSON.parse(localStorage.getItem("birds")) || [];
+
+function saveData(){
+localStorage.setItem(
+"birds",
+JSON.stringify(birds)
+);
+}
+
+function addBird(){
+
+let ring =
+document.getElementById("ringIn").value.trim();
+
+let owner =
+document.getElementById("ownerIn").value.trim();
+
+let receiveDate =
+document.getElementById("receiveDate").value;
+
+if(!ring || !owner || !receiveDate){
+
+alert("กรุณากรอกข้อมูลให้ครบ");
+
+return;
+}
+
+if(birds.some(b=>b.ring===ring)){
+
+alert("Ring Number ซ้ำ");
+
+return;
+}
+
+birds.push({
+ring:ring,
+owner:owner,
+receiveDate:receiveDate,
+status:"คงเหลือ",
+sellDate:""
+});
+
+saveData();
+
+document.getElementById("ringIn").value="";
+document.getElementById("ownerIn").value="";
+document.getElementById("receiveDate").value="";
+
+renderTable();
+
+}
+
+function sellBird(){
+
+let ring =
+document.getElementById("sellRing").value;
+
+let sellDate =
+document.getElementById("sellDate").value;
+
+if(!ring || !sellDate){
+
+alert("กรุณาระบุข้อมูล");
+
+return;
+}
+
+let bird =
+birds.find(x=>x.ring===ring);
+
+bird.status="ขายแล้ว";
+bird.sellDate=sellDate;
+
+saveData();
+renderTable();
+
+}
+
+function deleteBird(index){
+
+if(confirm("ลบรายการนี้ ?")){
+
+birds.splice(index,1);
+
+saveData();
+
+renderTable();
+
+}
+
+}
+
+function renderTable(){
+
+let keyword =
+document.getElementById("searchBox").value.toLowerCase();
+
+let table =
+document.getElementById("birdTable");
+
+table.innerHTML="";
+
+let available=0;
+let sold=0;
+
+let sellSelect =
+document.getElementById("sellRing");
+
+sellSelect.innerHTML=
+'<option value="">เลือก Ring Number</option>';
+
+birds.forEach((bird,index)=>{
+
+if(bird.status==="คงเหลือ"){
+
+available++;
+
+sellSelect.innerHTML+=
+`<option value="${bird.ring}">
+${bird.ring}
+</option>`;
+
+}else{
+
+sold++;
+
+}
+
+if(
+bird.ring.toLowerCase().includes(keyword)
+){
+
+table.innerHTML += `
+<tr>
+
+<td>${bird.ring}</td>
+
+<td>${bird.owner}</td>
+
+<td>${bird.receiveDate}</td>
+
+<td class="${
+bird.status==="คงเหลือ"
+?
+"status-available"
+:
+"status-sold"
+}">
+${bird.status}
+</td>
+
+<td>${bird.sellDate || "-"}</td>
+
+<td>
+<button
+class="btn-delete"
+onclick="deleteBird(${index})">
+ลบ
+</button>
+</td>
+
+</tr>
+`;
+
+}
+
+});
+
+document.getElementById("totalBirds").innerText =
+birds.length;
+
+document.getElementById("availableBirds").innerText =
+available;
+
+document.getElementById("soldBirds").innerText =
+sold;
+
+}
+
+renderTable();
+
+</script>
+
+</body>
+</html>

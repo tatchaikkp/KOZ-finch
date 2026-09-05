@@ -9,25 +9,25 @@
 <style>
 
 *{
-    box-sizing:border-box;
     margin:0;
     padding:0;
+    box-sizing:border-box;
     font-family:'Segoe UI',sans-serif;
 }
 
 body{
-    background:#eef2f7;
+    background:#f4f7fb;
     padding:20px;
 }
 
 .container{
-    max-width:1200px;
+    max-width:1400px;
     margin:auto;
 }
 
 .header{
     text-align:center;
-    margin-bottom:25px;
+    margin-bottom:20px;
 }
 
 .header h1{
@@ -37,16 +37,15 @@ body{
 .card{
     background:#fff;
     padding:20px;
-    border-radius:15px;
-    box-shadow:0 3px 10px rgba(0,0,0,0.1);
     margin-bottom:20px;
+    border-radius:15px;
+    box-shadow:0 3px 12px rgba(0,0,0,0.1);
 }
 
 .form-grid{
     display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+    grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
     gap:10px;
-    margin-top:10px;
 }
 
 input,select{
@@ -57,7 +56,7 @@ input,select{
 
 button{
     border:none;
-    padding:12px 18px;
+    padding:12px;
     border-radius:8px;
     cursor:pointer;
     font-weight:bold;
@@ -78,19 +77,21 @@ button{
     color:white;
 }
 
-.summary{
-    display:flex;
+.dashboard{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
     gap:15px;
-    flex-wrap:wrap;
 }
 
 .box{
-    flex:1;
-    min-width:180px;
+    padding:20px;
+    border-radius:15px;
     color:white;
-    padding:15px;
-    border-radius:12px;
     text-align:center;
+}
+
+.box h2{
+    margin-bottom:8px;
 }
 
 .blue{
@@ -105,9 +106,14 @@ button{
     background:#e74c3c;
 }
 
+.purple{
+    background:#8e44ad;
+}
+
 table{
     width:100%;
     border-collapse:collapse;
+    font-size:14px;
 }
 
 th{
@@ -116,30 +122,41 @@ th{
 }
 
 th,td{
-    padding:12px;
     border:1px solid #ddd;
+    padding:10px;
     text-align:center;
 }
 
 .status-available{
-    color:green;
+    color:#27ae60;
     font-weight:bold;
 }
 
 .status-sold{
-    color:red;
+    color:#e74c3c;
+    font-weight:bold;
+}
+
+.profit{
+    color:#27ae60;
+    font-weight:bold;
+}
+
+.loss{
+    color:#e74c3c;
     font-weight:bold;
 }
 
 @media(max-width:768px){
+
 table{
-    font-size:13px;
+    font-size:12px;
 }
+
 }
 
 </style>
 </head>
-
 <body>
 
 <div class="container">
@@ -149,39 +166,51 @@ table{
 </div>
 
 <div class="card">
-
-<div class="summary">
+<div class="dashboard">
 
 <div class="box blue">
-<h3 id="totalBirds">0</h3>
-<p>ทั้งหมด</p>
+<h2 id="totalBirds">0</h2>
+<p>จำนวนทั้งหมด</p>
 </div>
 
 <div class="box green">
-<h3 id="availableBirds">0</h3>
+<h2 id="availableBirds">0</h2>
 <p>คงเหลือ</p>
 </div>
 
 <div class="box red">
-<h3 id="soldBirds">0</h3>
+<h2 id="soldBirds">0</h2>
 <p>ขายแล้ว</p>
 </div>
 
+<div class="box purple">
+<h2 id="totalProfit">0</h2>
+<p>กำไรสะสม (บาท)</p>
 </div>
 
 </div>
-
-<!-- รับเข้า -->
+</div>
 
 <div class="card">
 
 <h2>🟢 บันทึกรับเข้า</h2>
+<br>
 
 <div class="form-grid">
 
 <input type="text" id="ringIn" placeholder="Ring Number">
 
 <input type="text" id="ownerIn" placeholder="ชื่อเจ้าของ">
+
+<select id="genderIn">
+<option value="">เลือกเพศ</option>
+<option value="ผู้">ผู้</option>
+<option value="เมีย">เมีย</option>
+</select>
+
+<input type="text" id="colorIn" placeholder="สี">
+
+<input type="number" id="buyPrice" placeholder="ราคาซื้อ">
 
 <input type="date" id="receiveDate">
 
@@ -193,11 +222,10 @@ table{
 
 </div>
 
-<!-- ขายออก -->
-
 <div class="card">
 
 <h2>🔴 บันทึกขายออก</h2>
+<br>
 
 <div class="form-grid">
 
@@ -205,15 +233,20 @@ table{
 
 <input type="date" id="sellDate">
 
-<button class="btn-out" onclick="sellBird()">
+<input type="number"
+id="sellPrice"
+placeholder="ราคาขาย">
+
+<button class="btn-out"
+onclick="sellBird()">
+
 บันทึกขายออก
+
 </button>
 
 </div>
 
 </div>
-
-<!-- ค้นหา -->
 
 <div class="card">
 
@@ -221,222 +254,5 @@ table{
 type="text"
 id="searchBox"
 placeholder="ค้นหา Ring Number"
-onkeyup="renderTable()">
-
-</div>
-
-<!-- ตาราง -->
-
-<div class="card">
-
-<table>
-
-<thead>
-
-<tr>
-<th>Ring</th>
-<th>เจ้าของ</th>
-<th>วันที่รับเข้า</th>
-<th>สถานะ</th>
-<th>วันที่ขาย</th>
-<th>ลบ</th>
-</tr>
-
-</thead>
-
-<tbody id="birdTable"></tbody>
-
-</table>
-
-</div>
-
-</div>
-
-<script>
-
-let birds =
-JSON.parse(localStorage.getItem("birds")) || [];
-
-function saveData(){
-localStorage.setItem(
-"birds",
-JSON.stringify(birds)
-);
-}
-
-function addBird(){
-
-let ring =
-document.getElementById("ringIn").value.trim();
-
-let owner =
-document.getElementById("ownerIn").value.trim();
-
-let receiveDate =
-document.getElementById("receiveDate").value;
-
-if(!ring || !owner || !receiveDate){
-
-alert("กรุณากรอกข้อมูลให้ครบ");
-
-return;
-}
-
-if(birds.some(b=>b.ring===ring)){
-
-alert("Ring Number ซ้ำ");
-
-return;
-}
-
-birds.push({
-ring:ring,
-owner:owner,
-receiveDate:receiveDate,
-status:"คงเหลือ",
-sellDate:""
-});
-
-saveData();
-
-document.getElementById("ringIn").value="";
-document.getElementById("ownerIn").value="";
-document.getElementById("receiveDate").value="";
-
-renderTable();
-
-}
-
-function sellBird(){
-
-let ring =
-document.getElementById("sellRing").value;
-
-let sellDate =
-document.getElementById("sellDate").value;
-
-if(!ring || !sellDate){
-
-alert("กรุณาระบุข้อมูล");
-
-return;
-}
-
-let bird =
-birds.find(x=>x.ring===ring);
-
-bird.status="ขายแล้ว";
-bird.sellDate=sellDate;
-
-saveData();
-renderTable();
-
-}
-
-function deleteBird(index){
-
-if(confirm("ลบรายการนี้ ?")){
-
-birds.splice(index,1);
-
-saveData();
-
-renderTable();
-
-}
-
-}
-
-function renderTable(){
-
-let keyword =
-document.getElementById("searchBox").value.toLowerCase();
-
-let table =
-document.getElementById("birdTable");
-
-table.innerHTML="";
-
-let available=0;
-let sold=0;
-
-let sellSelect =
-document.getElementById("sellRing");
-
-sellSelect.innerHTML=
-'<option value="">เลือก Ring Number</option>';
-
-birds.forEach((bird,index)=>{
-
-if(bird.status==="คงเหลือ"){
-
-available++;
-
-sellSelect.innerHTML+=
-`<option value="${bird.ring}">
-${bird.ring}
-</option>`;
-
-}else{
-
-sold++;
-
-}
-
-if(
-bird.ring.toLowerCase().includes(keyword)
-){
-
-table.innerHTML += `
-<tr>
-
-<td>${bird.ring}</td>
-
-<td>${bird.owner}</td>
-
-<td>${bird.receiveDate}</td>
-
-<td class="${
-bird.status==="คงเหลือ"
-?
-"status-available"
-:
-"status-sold"
-}">
-${bird.status}
-</td>
-
-<td>${bird.sellDate || "-"}</td>
-
-<td>
-<button
-class="btn-delete"
-onclick="deleteBird(${index})">
-ลบ
-</button>
-</td>
-
-</tr>
-`;
-
-}
-
-});
-
-document.getElementById("totalBirds").innerText =
-birds.length;
-
-document.getElementById("availableBirds").innerText =
-available;
-
-document.getElementById("soldBirds").innerText =
-sold;
-
-}
-
-renderTable();
-
-</script>
-
-</body>
-</html>
+onkeyup="renderTable()"
+style="width
